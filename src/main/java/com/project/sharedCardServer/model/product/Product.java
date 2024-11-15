@@ -25,10 +25,12 @@ public class Product {
     @JoinColumn(name = "id_category",referencedColumnName = "id")
     @OneToOne(targetEntity = Category.class, fetch = FetchType.LAZY)
     private Category category;
+    private String pic;
     private Double fat;
     private Double protein;
     private Double carb;
-    private Double calorie;
+    private Integer calories;
+    private Integer weight;
     @NotNull
     private Boolean allergy;
 }

@@ -30,7 +30,6 @@ import java.util.UUID;
 import static com.project.sharedCardServer.restController.Authentication.HEADER_ID_USER;
 import static com.project.sharedCardServer.restController.Authentication.HEADER_PASSWORD_USER;
 import static com.project.sharedCardServer.webSockets.StompController.SYNC_PATH_SUBSCRIBE;
-import javax.imageio.ImageIO;
 @RestController()
 @RequestMapping("/pic")
 public class FileController {
@@ -59,6 +58,15 @@ public class FileController {
         return FileManager.getCategory(name);
     }
 
+    @GetMapping("/product/{id}")
+    public byte[] getProductPic(@PathVariable("id") String name) {
+        return FileManager.getProduct(name);
+    }
+
+    @GetMapping("/recipe/{id}")
+    public byte[] getRecipePic(@PathVariable("id") String name) {
+        return FileManager.getRecipe(name);
+    }
 
     @PostMapping("/group")
     public ResponseEntity saveGroupPic(@RequestHeader HttpHeaders headers,

@@ -23,5 +23,4 @@ public class RecipeProduct {
     @JsonProperty("id_metric")
     private int idMetric;
     private int count;
-    private int weight;
 }

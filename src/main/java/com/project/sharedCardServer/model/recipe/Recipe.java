@@ -19,9 +19,14 @@ public class Recipe {
     @Column(name = "name_en")
     @JsonProperty("name_en")
     private String nameEn;
+    @Column(columnDefinition="TEXT")
     private String description;
-    private int portion;
-    private double calories;
+    private Integer portion;
+    private Integer calories;
+    private Double protein;
+    private Double fat;
+    private Double carb;
+    private String pic;
     @NotNull
     @Column(name = "id_category",insertable = false, updatable = false)
     @JsonProperty("id_category")

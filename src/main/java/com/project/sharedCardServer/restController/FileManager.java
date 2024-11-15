@@ -21,6 +21,8 @@ import java.util.UUID;
 public class FileManager {
    private static final String FOLDER = "pic";
     private static final String GROUP_PATH = "/group/";
+    private static final String PRODUCT_PATH = "/product/";
+    private static final String RECIPE_PATH = "/recipe/";
     private static final String USER_PATH = "/user/";
     private static final String QR_CODE_PATH = "/qr-code/";
     private static final String CATEGORY_PATH = "/category/";
@@ -34,7 +36,21 @@ public class FileManager {
         File file = new File(path);
         return getFile(file);
     }
-
+    public static byte[] getCategory(String name) {
+        String path = FOLDER + CATEGORY_PATH + name;
+        File file = new File(path);
+        return getFile(file);
+    }
+    public static byte[] getRecipe(String name) {
+        String path = FOLDER + RECIPE_PATH + name;
+        File file = new File(path);
+        return getFile(file);
+    }
+    public static byte[] getProduct(String name) {
+        String path = FOLDER + PRODUCT_PATH + name;
+        File file = new File(path);
+        return getFile(file);
+    }
     public static String saveGroupPic(String uri, byte[] pic) {
         return saveFile(uri, pic);
     }
@@ -145,9 +161,4 @@ public class FileManager {
         return path;
     }
 
-    public static byte[] getCategory(String name) {
-        String path = FOLDER + CATEGORY_PATH + name;
-        File file = new File(path);
-        return getFile(file);
-    }
 }
