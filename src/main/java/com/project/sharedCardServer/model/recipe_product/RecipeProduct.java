@@ -13,14 +13,11 @@ import lombok.Data;
 public class RecipeProduct {
     @Id
     @Column(name = "id_product", insertable = false, updatable = false)
-    @JsonProperty("id_product")
-    private int idProduct;
+    private Integer idProduct;
     @Id
     @Column(name = "id_recipe", insertable = false, updatable = false)
-    @JsonProperty("id_recipe")
-    private int idRecipe;
+    private Integer idRecipe;
     @Column(name="id_metric", insertable = false, updatable = false)
-    @JsonProperty("id_metric")
-    private int idMetric;
-    private int count;
+    private Integer idMetric;
+    private Integer count;
 }
