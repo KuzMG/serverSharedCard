@@ -7,11 +7,7 @@ pipeline {
         stage('build') {
             steps {
                withMaven(maven: 'MAVEN_ENV') {
-                    sh 'export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"'
-                    sh 'export PATH=$PATH:$JAVA_HOME/bin'
-                    sh 'echo $JAVA_HOME'
-                    sh 'echo $PATH'
-            		sh "mvn ${MAVEN_ARGS}"
+                    sh 'export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64 | export PATH=$PATH:$JAVA_HOME/bin | mvn ${MAVEN_ARGS}'
         	}
             }
         }
