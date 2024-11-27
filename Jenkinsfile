@@ -4,14 +4,10 @@ pipeline {
       MAVEN_ARGS=" -e clean install"
   }
     stages {
-        stage('Which Java?') {
-            steps {
-                sh 'java --version'
-            }
-        }
         stage('build') {
             steps {
                withMaven(maven: 'MAVEN_ENV') {
+                    sh 'mvn --version'
             		sh "mvn ${MAVEN_ARGS}"
         	}
             }
