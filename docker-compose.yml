@@ -21,4 +21,4 @@ services:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "qwe321loi"
     volumes:
-      - ./startScript.sql:/docker-entrypoint-initdb.d
+      - ./startScript.sql:/docker-entrypoint-initdb.d/startScript.sql
