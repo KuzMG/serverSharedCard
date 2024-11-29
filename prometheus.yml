@@ -1,14 +1,10 @@
 global:
-  scrape_interval:  15s  # Установите интервал очистки на каждые 15 секунд.
-
-  # scrape_timeout установлен на глобальное значение по умолчанию (10 с).
-  # Прикрепите эти метки к любым временным рядам или оповещениям при взаимодействии с
-  # внешними системами (федерация, удаленное хранилище, Alertmanager).
+  scrape_interval:  5s
   external_labels:
     monitor:  'codelab-monitor'
 scrape_configs:
-    job_name: 'server'
-    scrape_interval: 5s
-    metrics_path: '/actuator/prometheus'
-    static_configs:
-      - targets: [ 'server:8081' ]
+  job_name: 'server'
+  scrape_interval: 5s
+  metrics_path: '/actuator/prometheus'
+  static_configs:
+    - targets: ['server:8081']
