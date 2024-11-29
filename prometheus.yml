@@ -7,12 +7,8 @@ global:
   external_labels:
     monitor:  'codelab-monitor'
 scrape_configs:
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['localhost:9090']
-  - job_name: 'db'
-    static_configs:
-      - targets: ['db:5432']
-  - job_name: 'server'
+    job_name: 'server'
+    scrape_interval: 5s
+    metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: [ 'server:8081' ]
