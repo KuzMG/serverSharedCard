@@ -4,7 +4,7 @@ scrape_configs:
       - targets: ['localhost:9090']
   - job_name: 'db'
     static_configs:
-      - targets: ['localhost:5432']
+      - targets: ['db:5432']
   - job_name: 'server'
     static_configs:
-      - targets: [ 'localhost:8081' ]
+      - targets: [ 'server:8081' ]
