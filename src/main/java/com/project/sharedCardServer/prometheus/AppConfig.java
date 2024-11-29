@@ -1,0 +1,19 @@
+package com.project.sharedCardServer.prometheus;
+
+import io.micrometer.core.aop.TimedAspect;
+import io.micrometer.core.instrument.MeterRegistry;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class AppConfig {
+
+    @Bean
+    public TimedAspect timedAspect(){
+        return new TimedAspect();
+    }
+//    @Bean
+//    public TimedAspect timedAspect(MeterRegistry meterRegistry){
+//        return new TimedAspect(meterRegistry);
+//    }
+}

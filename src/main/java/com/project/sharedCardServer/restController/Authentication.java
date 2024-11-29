@@ -26,6 +26,7 @@ import com.project.sharedCardServer.restController.dto.AccountResponse;
 import com.project.sharedCardServer.restController.dto.AuthResponse;
 import com.project.sharedCardServer.restController.dto.DictionaryResponse;
 import com.project.sharedCardServer.restController.dto.RegistrationBody;
+import io.micrometer.core.annotation.Timed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -68,7 +69,7 @@ public class Authentication {
     private TargetDao targetDao;
     public static final String HEADER_ID_USER = "id-user";
     public static final String HEADER_PASSWORD_USER = "password-user";
-
+    @Timed("auth")
     @GetMapping("/authentication")
     public ResponseEntity<AuthResponse> authentication(@RequestParam("login") String login, @RequestParam("password") String password) {
         if (userDao.authentication(login, password)) {
@@ -79,6 +80,7 @@ public class Authentication {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
+    @Timed("registr")
     @PostMapping("/registration")
     public ResponseEntity<String> registration(@RequestBody RegistrationBody body) {
         String email = body.getEmail();
