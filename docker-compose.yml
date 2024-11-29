@@ -23,4 +23,17 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./startScript.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./startScript.sql:/docker-entrypoint-initdb.d/startScript.sql
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
