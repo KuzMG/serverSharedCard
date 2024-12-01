@@ -43,6 +43,6 @@ services:
     ports:
       - "8001:8080"
     volumes:
-      - .:/usr/share/nginx/html/swagger
+      - ./swagger:/usr/share/nginx/html/swagger
     environment:
-      API_URL: api.yaml
+      API_URL: swagger/api.yaml
