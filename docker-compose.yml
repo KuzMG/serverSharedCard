@@ -23,7 +23,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./startScript.sql:/docker-entrypoint-initdb.d/startScript.sql
+      - startScript.sql:/docker-entrypoint-initdb.d/init.sql
   prometheus:
     image: prom/prometheus
     ports:
