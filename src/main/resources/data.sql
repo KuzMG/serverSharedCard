@@ -1,4 +1,30 @@
 CREATE SEQUENCE IF NOT EXISTS user_name_seq START WITH 1 INCREMENT BY 1;
+
+pipeline {
+    agent any
+    environment {
+      MAVEN_ARGS=" -e clean install"
+  }
+    stages {
+        stage('build') {
+            agent { node { label 'node1' } }
+            steps {
+               withMaven(maven: 'MAVEN_ENV') {
+                    sh 'mvn ${MAVEN_ARGS}'
+        	    }
+            }
+        }
+        stage('docker-compose start') {
+           agent { node { label 'node2' } }
+      	   steps {
+       		sh 'docker-compose up --build'
+      	    }
+    	}
+    }
+}
+
+
+
 CREATE EXTENSION pgcrypto;
 
 ALTER TABLE group_users
