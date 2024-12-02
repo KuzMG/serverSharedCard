@@ -4,24 +4,19 @@ pipeline {
       MAVEN_ARGS=" -e clean install"
   }
     stages {
-        node('node1') {
-            stage('build') {
-                steps {
-                   withMaven(maven: 'MAVEN_ENV') {
-                        sh 'mvn ${MAVEN_ARGS}'
-            	    }
-            	    stash 'name-of-the-stash'
-                }
+        stage('build') {
+            agent { node { label 'node1' } }
+            steps {
+               withMaven(maven: 'MAVEN_ENV') {
+                    sh 'mvn ${MAVEN_ARGS}'
+        	    }
             }
         }
-        node('node2') {
-            stage('docker-compose start') {
-               steps {
-                unstash 'name-of-the-stash'
-            	sh 'docker-compose up --build'
-
-                }
-            }
+        stage('docker-compose start') {
+           agent { node { label 'node2' } }
+      	   steps {
+       		sh 'docker-compose up --build'
+      	    }
     	}
     }
 }
