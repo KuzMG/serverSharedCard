@@ -84,8 +84,8 @@ public class Authentication {
         metricRegistration = new DoubleAccumulator((x,y) -> y,0.0d);
         metricVerification = new DoubleAccumulator((x,y) -> y,0.0d);
         metricRegistry.gauge("metric_authentication",metricAuthentication);
-        metricRegistry.gauge("metric_registration",metricAuthentication);
-        metricRegistry.gauge("metric_verification",metricAuthentication);
+        metricRegistry.gauge("metric_registration",metricRegistration);
+        metricRegistry.gauge("metric_verification",metricVerification);
     }
     @Timed(value ="auth.timed.gg")
     @GetMapping("/authentication")
