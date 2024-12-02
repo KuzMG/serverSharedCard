@@ -4,7 +4,7 @@ pipeline {
       MAVEN_ARGS=" -e clean install"
   }
     stages {
-        node('linux1') {
+        node('node1') {
             stage('build') {
                 steps {
                    withMaven(maven: 'MAVEN_ENV') {
@@ -14,7 +14,7 @@ pipeline {
                 }
             }
         }
-        node('linux1') {
+        node('node2') {
             stage('docker-compose start') {
                steps {
                 unstash 'name-of-the-stash'
