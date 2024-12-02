@@ -76,23 +76,24 @@ public class Authentication {
     private DoubleAccumulator metricAuthentication;
     private DoubleAccumulator metricRegistration;
     private DoubleAccumulator metricVerification;
+    @Autowired
     private MeterRegistry metricRegistry;
-    @PostConstruct
-    private void init(){
-        metricAuthentication = new DoubleAccumulator((x,y) -> y,0.0d);
-        metricRegistration = new DoubleAccumulator((x,y) -> y,0.0d);
-        metricVerification = new DoubleAccumulator((x,y) -> y,0.0d);
-        metricRegistry.gauge("metric_authentication",metricAuthentication);
-        metricRegistry.gauge("metric_registration",metricAuthentication);
-        metricRegistry.gauge("metric_verification",metricAuthentication);
-    }
-    @Timed("auth")
+//    @PostConstruct
+//    private void init(){
+//        metricAuthentication = new DoubleAccumulator((x,y) -> y,0.0d);
+//        metricRegistration = new DoubleAccumulator((x,y) -> y,0.0d);
+//        metricVerification = new DoubleAccumulator((x,y) -> y,0.0d);
+//        metricRegistry.gauge("metric_authentication",metricAuthentication);
+//        metricRegistry.gauge("metric_registration",metricAuthentication);
+//        metricRegistry.gauge("metric_verification",metricAuthentication);
+//    }
+    @Timed("auth.timed.gg")
     @GetMapping("/authentication")
     public ResponseEntity<AuthResponse> authentication(@RequestParam("login") String login, @RequestParam("password") String password) {
         if (userDao.authentication(login, password)) {
             UUID userId = userDao.getUserAccount(login).getId();
             UUID groupId = groupDao.getDefaultGroup(login);
-            metricAuthentication.accumulate(metricAuthentication.get()+1);
+//            metricAuthentication.accumulate(metricAuthentication.get()+1);
             return new ResponseEntity<>(new AuthResponse(userId, groupId), HttpStatus.OK);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -147,7 +148,7 @@ public class Authentication {
             Thread thread = new Thread(() -> CodeSender.send(email, code));
             thread.start();
             userDao.saveCode(email, code, dateNow, 1);
-            metricRegistration.accumulate(metricRegistration.get() +1);
+//            metricRegistration.accumulate(metricRegistration.get() +1);
             return ResponseEntity.ok().build();
         }
     }
@@ -158,7 +159,7 @@ public class Authentication {
             userDao.verification(login);
             UUID idUser = userDao.getUserAccount(login).getId();
             UUID idGroup = groupDao.getDefaultGroup(login);
-            metricVerification.accumulate(metricVerification.get() +1);
+//            metricVerification.accumulate(metricVerification.get() +1);
             return new ResponseEntity<>(new AuthResponse(idUser, idGroup), HttpStatus.OK);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
