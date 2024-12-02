@@ -9,11 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class AppConfig {
 
     @Bean
-    public TimedAspect timedAspect(){
-        return new TimedAspect();
+    public TimedAspect timedAspect(MeterRegistry meterRegistry){
+        return new TimedAspect(meterRegistry);
     }
-//    @Bean
-//    public TimedAspect timedAspect(MeterRegistry meterRegistry){
-//        return new TimedAspect(meterRegistry);
-//    }
 }

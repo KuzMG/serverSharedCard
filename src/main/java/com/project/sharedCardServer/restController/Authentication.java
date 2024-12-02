@@ -27,6 +27,8 @@ import com.project.sharedCardServer.restController.dto.AuthResponse;
 import com.project.sharedCardServer.restController.dto.DictionaryResponse;
 import com.project.sharedCardServer.restController.dto.RegistrationBody;
 import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -36,6 +38,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.DoubleAccumulator;
 
 @RestController
 public class Authentication {
@@ -69,12 +72,27 @@ public class Authentication {
     private TargetDao targetDao;
     public static final String HEADER_ID_USER = "id-user";
     public static final String HEADER_PASSWORD_USER = "password-user";
+
+    private DoubleAccumulator metricAuthentication;
+    private DoubleAccumulator metricRegistration;
+    private DoubleAccumulator metricVerification;
+    private MeterRegistry metricRegistry;
+    @PostConstruct
+    private void init(){
+        metricAuthentication = new DoubleAccumulator((x,y) -> y,0.0d);
+        metricRegistration = new DoubleAccumulator((x,y) -> y,0.0d);
+        metricVerification = new DoubleAccumulator((x,y) -> y,0.0d);
+        metricRegistry.gauge("metric_authentication",metricAuthentication);
+        metricRegistry.gauge("metric_registration",metricAuthentication);
+        metricRegistry.gauge("metric_verification",metricAuthentication);
+    }
     @Timed("auth")
     @GetMapping("/authentication")
     public ResponseEntity<AuthResponse> authentication(@RequestParam("login") String login, @RequestParam("password") String password) {
         if (userDao.authentication(login, password)) {
             UUID userId = userDao.getUserAccount(login).getId();
             UUID groupId = groupDao.getDefaultGroup(login);
+            metricAuthentication.accumulate(metricAuthentication.get()+1);
             return new ResponseEntity<>(new AuthResponse(userId, groupId), HttpStatus.OK);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -119,6 +137,7 @@ public class Authentication {
                 Thread thread = new Thread(() -> CodeSender.send(email, code));
                 thread.start();
                 userDao.saveCode(email, code, dateNow, ++countCode);
+                metricRegistration.accumulate(metricRegistration.get() +1);
                 return ResponseEntity.ok().build();
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Превышено количетсво отправленных сообщений!");
@@ -128,6 +147,7 @@ public class Authentication {
             Thread thread = new Thread(() -> CodeSender.send(email, code));
             thread.start();
             userDao.saveCode(email, code, dateNow, 1);
+            metricRegistration.accumulate(metricRegistration.get() +1);
             return ResponseEntity.ok().build();
         }
     }
@@ -138,6 +158,7 @@ public class Authentication {
             userDao.verification(login);
             UUID idUser = userDao.getUserAccount(login).getId();
             UUID idGroup = groupDao.getDefaultGroup(login);
+            metricVerification.accumulate(metricVerification.get() +1);
             return new ResponseEntity<>(new AuthResponse(idUser, idGroup), HttpStatus.OK);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
