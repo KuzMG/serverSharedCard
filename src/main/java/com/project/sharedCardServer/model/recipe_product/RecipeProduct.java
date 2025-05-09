@@ -1,9 +1,5 @@
 package com.project.sharedCardServer.model.recipe_product;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.project.sharedCardServer.model.metrics.Metric;
-import com.project.sharedCardServer.model.product.Product;
-import com.project.sharedCardServer.model.recipe.Recipe;
 import jakarta.persistence.*;
 import lombok.Data;
 

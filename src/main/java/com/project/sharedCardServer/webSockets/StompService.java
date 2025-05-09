@@ -1,17 +1,21 @@
 package com.project.sharedCardServer.webSockets;
 
 import com.google.zxing.WriterException;
-import com.project.sharedCardServer.model.check.Check;
-import com.project.sharedCardServer.model.check.CheckDao;
+import com.project.sharedCardServer.model.basket.Basket;
+import com.project.sharedCardServer.model.basket.BasketDao;
+import com.project.sharedCardServer.model.history.History;
+import com.project.sharedCardServer.model.history.HistoryDao;
+import com.project.sharedCardServer.model.purchase.Purchase;
+import com.project.sharedCardServer.model.purchase.PurchaseDao;
 import com.project.sharedCardServer.model.group.Group;
 import com.project.sharedCardServer.model.group.GroupDao;
 import com.project.sharedCardServer.model.group.GroupToken;
-import com.project.sharedCardServer.model.group_users.GroupUsers;
-import com.project.sharedCardServer.model.group_users.GroupUsersDao;
+import com.project.sharedCardServer.model.group_persons.GroupPersons;
+import com.project.sharedCardServer.model.group_persons.GroupPersonsDao;
 import com.project.sharedCardServer.model.target.Target;
 import com.project.sharedCardServer.model.target.TargetDao;
-import com.project.sharedCardServer.model.user.User;
-import com.project.sharedCardServer.model.user.UserDao;
+import com.project.sharedCardServer.model.person.Person;
+import com.project.sharedCardServer.model.person.PersonDao;
 import com.project.sharedCardServer.restController.FileManager;
 import com.project.sharedCardServer.restController.dto.AccountResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,59 +34,72 @@ import java.util.UUID;
 @Component
 public class StompService {
     @Autowired
-    private UserDao userDao;
+    private PersonDao personDao;
     @Autowired
     private GroupDao groupDao;
     @Autowired
-    private GroupUsersDao groupUsersDao;
+    private GroupPersonsDao groupPersonsDao;
     @Autowired
-    private CheckDao checkDao;
+    private PurchaseDao purchaseDao;
     @Autowired
     private TargetDao targetDao;
     @Autowired
+    private BasketDao basketDao;
+    @Autowired
+    private HistoryDao historyDao;
+    @Autowired
     private FileManager fileManager;
 
-    public AccountResponse getAccountResponse(UUID idUser) {
-        return new AccountResponse(userDao.getUsers(idUser),
-                groupDao.getAll(idUser, false),
-                groupUsersDao.getAll(idUser, false),
-                checkDao.getAll(idUser),
-                targetDao.getAll(idUser));
+    public AccountResponse getAccountResponse(UUID personId) {
+        return new AccountResponse(personDao.getPersons(personId),
+                groupDao.getAll(personId, false),
+                groupPersonsDao.getAll(personId, false),
+                purchaseDao.getAll(personId),
+                basketDao.getAll(personId),
+                historyDao.getAll(personId));
     }
 
-    public UsernamePasswordAuthenticationToken getAuthenticatedOrFail(final UUID idUser, final String passwordUser) throws AuthenticationException {
-        if (!userDao.checkPassword(idUser, passwordUser)) {
-            throw new BadCredentialsException("Bad credentials for user ");
+    public UsernamePasswordAuthenticationToken getAuthenticatedOrFail(final UUID personId, final String passwordPerson) throws AuthenticationException {
+        if (!personDao.checkPassword(personId, passwordPerson)) {
+            throw new BadCredentialsException("Bad credentials for person ");
         }
-        String user = idUser.toString();
-        return new UsernamePasswordAuthenticationToken(user,
+        String person = personId.toString();
+        return new UsernamePasswordAuthenticationToken(person,
                 "",
                 Collections.singleton((GrantedAuthority) () -> "USER"));
 
     }
 
-    public List<UUID> getUsersId(UUID groupId) {
-        return userDao.getUsersId(groupId);
+    public List<UUID> getPersonsId(UUID groupId) {
+        return personDao.getPersonsId(groupId);
     }
 
-    public List<User> getUsers(UUID userId) {
-        return userDao.getUsers(userId);
+    public List<Person> getPersons(UUID userId) {
+        return personDao.getPersons(userId);
     }
 
-    public List<User> getAllUsers(UUID groupId) {
-        return userDao.getAllUsers(groupId);
+    public List<Person> getAllPersons(UUID groupId) {
+        return personDao.getAllPersons(groupId);
     }
 
-    public void saveCheck(Check check) {
-        checkDao.save(check);
+    public void savePurchase(Purchase purchase) {
+        purchaseDao.save(purchase);
     }
-
+    public void saveHistory(History history) {
+        historyDao.save(history);
+    }
+    public void saveBasket(Basket basket) {
+        basketDao.save(basket);
+    }
     public void saveTarget(Target target) {
         targetDao.save(target);
     }
 
-    public void deleteCheck(UUID checkId) {
-        checkDao.delete(checkId);
+    public void deletePurchase(UUID purchaseId) {
+        purchaseDao.delete(purchaseId);
+    }
+    public void deleteBasket(UUID basketId) {
+        basketDao.delete(basketId);
     }
 
     public void deleteTarget(UUID targetId) {
@@ -96,8 +113,8 @@ public class StompService {
         return groupDao.updatePic(group.getId(), path);
     }
 
-    public GroupUsers createGroupUsers(UUID groupId, UUID userId, Integer status) {
-        return groupUsersDao.create(userId, groupId, status);
+    public GroupPersons createGroupPersons(UUID groupId, UUID personId, Integer status) {
+        return groupPersonsDao.create(personId, groupId, status);
     }
 
     public void deleteGroup(UUID groupId) {
@@ -113,8 +130,8 @@ public class StompService {
     }
 
 
-    public List<Check> getChecks(UUID groupId) {
-        return checkDao.get(groupId);
+    public List<Purchase> getPurchases(UUID groupId) {
+        return purchaseDao.get(groupId);
     }
 
     public List<Target> getTargets(UUID groupId) {
@@ -125,12 +142,12 @@ public class StompService {
         return groupDao.get(groupId);
     }
 
-    public List<GroupUsers> getGroupUsers(UUID groupId) {
-        return groupUsersDao.getGroup(groupId);
+    public List<GroupPersons> getGroupPersons(UUID groupId) {
+        return groupPersonsDao.getGroup(groupId);
     }
 
-    public boolean isPasswordValid(UUID userId, String password) {
-        return userDao.checkPassword(userId, password);
+    public boolean isPasswordValid(UUID personId, String password) {
+        return personDao.checkPassword(personId, password);
     }
 
     public GroupToken getToken(UUID groupId) throws IOException, WriterException {
@@ -138,56 +155,67 @@ public class StompService {
 
     }
 
-    public boolean isUserInGroup(UUID userId, UUID groupId) {
-        GroupUsers groupUsers = groupUsersDao.get(userId, groupId);
-        return groupUsers != null;
+    public boolean isPersonInGroup(UUID personId, UUID groupId) {
+        GroupPersons groupPersons = groupPersonsDao.get(personId, groupId);
+        return groupPersons != null;
     }
 
-    public boolean deleteUser(UUID userDelId, UUID groupId, UUID userId) {
-        GroupUsers groupUsers = groupUsersDao.get(userId, groupId);
-        if (groupUsers.getStatus() == GroupUsers.CREATOR ||
-                groupUsers.getStatus() == GroupUsers.ADMIN || userDelId.equals(userId)) {
-            groupUsersDao.delete(userDelId, groupId);
+    public boolean deletePerson(UUID personDelId, UUID groupId, UUID personId) {
+        GroupPersons groupPersons = groupPersonsDao.get(personId, groupId);
+        if (groupPersons.getStatus() == GroupPersons.CREATOR ||
+                groupPersons.getStatus() == GroupPersons.ADMIN || personDelId.equals(personId)) {
+            groupPersonsDao.delete(personDelId, groupId);
             return true;
         } else {
             return false;
         }
     }
 
-    public GroupUsers setUserAdmin(UUID userAdminId, UUID groupId, UUID userId, Integer status) {
-        GroupUsers groupUsers = groupUsersDao.get(userId, groupId);
-        if (groupUsers.getStatus() == GroupUsers.CREATOR) {
-            return groupUsersDao.setStatus(userAdminId, groupId, status);
+    public GroupPersons setPersonAdmin(UUID personAdminId, UUID groupId, UUID personId, Integer status) {
+        GroupPersons groupPersons = groupPersonsDao.get(personId, groupId);
+        if (groupPersons.getStatus() == GroupPersons.CREATOR) {
+            return groupPersonsDao.setStatus(personAdminId, groupId, status);
         } else {
             return null;
         }
     }
 
-    public Check getCheck(UUID id) {
-        return checkDao.getById(id);
+    public Purchase getPurchase(UUID id) {
+        return purchaseDao.getById(id);
+    }
+
+    public History getHistory(UUID id) {
+        return historyDao.getById(id);
+    }
+    public Basket getBasket(UUID id) {
+        return basketDao.getById(id);
     }
 
     public Target getTarget(UUID id) {
         return targetDao.getById(id);
     }
 
-    public User updateUser(User user) {
-        return userDao.serUser(user);
+    public Person updatePerson(Person person) {
+        return personDao.setPerson(person);
     }
 
-    public User updateUserPic(UUID userId, String pic) {
-        return userDao.updatePic(userId, pic);
+    public Person updatePersonPic(UUID personId, String pic) {
+        return personDao.updatePic(personId, pic);
     }
 
-    public Group updateGroupPic(UUID idGroup, String pic) {
-        return groupDao.updatePic(idGroup, pic);
+    public Group updateGroupPic(UUID groupId, String pic) {
+        return groupDao.updatePic(groupId, pic);
     }
 
-    public int getStatusOfUser(UUID userId, UUID groupId) {
-        return groupUsersDao.getStatus(userId, groupId);
+    public int getStatusOfPerson(UUID personId, UUID groupId) {
+        return groupPersonsDao.getStatus(personId, groupId);
     }
 
-    public User getUser(UUID userId) {
-        return userDao.getUser(userId);
+    public Person getUser(UUID personId) {
+        return personDao.getPerson(personId);
+    }
+
+    public List<UUID> deleteAllBasketByPurchase(UUID purchaseId) {
+        return basketDao.deleteByPurchaseId(purchaseId);
     }
 }

@@ -1,11 +1,12 @@
 package com.project.sharedCardServer.webSockets;
 
 
-import com.project.sharedCardServer.model.check.Check;
+import com.project.sharedCardServer.model.basket.Basket;
+import com.project.sharedCardServer.model.history.History;
+import com.project.sharedCardServer.model.purchase.Purchase;
 import com.project.sharedCardServer.model.group.Group;
-import com.project.sharedCardServer.model.group_users.GroupUsers;
-import com.project.sharedCardServer.model.target.Target;
-import com.project.sharedCardServer.model.user.User;
+import com.project.sharedCardServer.model.group_persons.GroupPersons;
+import com.project.sharedCardServer.model.person.Person;
 import com.project.sharedCardServer.restController.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
@@ -27,14 +28,14 @@ public class StompController {
     private StompService stompService;
 
 
-    @MessageMapping("/user/update")
-    public void updateUserSync(UpdateUserResponse response) {
-        User user = stompService.updateUser(response.getUser());
+    @MessageMapping("/person/update")
+    public void updatePersonSync(UpdatePersonResponse response) {
+        Person person = stompService.updatePerson(response.getPerson());
         AccountResponse accountResponse = new AccountResponse();
-        accountResponse.getUsers().add(user);
-        List<User> users = stompService.getUsers(user.getId());
-        for (User u : users) {
-            simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + u.getId(), accountResponse);
+        accountResponse.getPersons().add(person);
+        List<Person> persons = stompService.getPersons(person.getId());
+        for (Person p : persons) {
+            simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + p.getId(), accountResponse);
         }
     }
 
@@ -45,120 +46,183 @@ public class StompController {
         Group group = stompService.updateGroup(groupId, name);
         AccountResponse accountResponse = new AccountResponse();
         accountResponse.getGroups().add(group);
-        List<UUID> users = stompService.getUsersId(groupId);
-        for (UUID user : users) {
-            simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + user, accountResponse);
+        List<UUID> persons = stompService.getPersonsId(groupId);
+        for (UUID person : persons) {
+            simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + person, accountResponse);
         }
     }
 
     @MessageMapping("/group/delete")
     public void deleteGroupSync(DeleteResponse response) {
         UUID groupId = response.getGroupId();
-        UUID userId = response.getUserId();
-        if (stompService.isUserInGroup(userId, groupId)) {
+        UUID personId = response.getPersonId();
+        if (stompService.isPersonInGroup(personId, groupId)) {
 
-            int status = stompService.getStatusOfUser(userId, groupId);
-            List<UUID> users = stompService.getUsersId(groupId);
-            if (status == GroupUsers.CREATOR) {
+            int status = stompService.getStatusOfPerson(personId, groupId);
+            List<UUID> persons = stompService.getPersonsId(groupId);
+            if (status == GroupPersons.CREATOR) {
                 stompService.deleteGroup(groupId);
                 AccountDeleteResponse accountDeleteResponse = new AccountDeleteResponse();
                 accountDeleteResponse.getGroups().add(groupId);
-                for (UUID user : users) {
-                    simpMessagingTemplate.convertAndSend(SYNC_DELETE_PATH_SUBSCRIBE + user, accountDeleteResponse);
+                for (UUID person : persons) {
+                    simpMessagingTemplate.convertAndSend(SYNC_DELETE_PATH_SUBSCRIBE + person, accountDeleteResponse);
                 }
             } else {
-                stompService.deleteUser(userId, groupId, userId);
+                stompService.deletePerson(personId, groupId, personId);
                 AccountDeleteResponse accountDeleteGroupResponse = new AccountDeleteResponse();
                 accountDeleteGroupResponse.getGroups().add(groupId);
 
                 AccountDeleteResponse accountDeleteUserResponse = new AccountDeleteResponse();
-                accountDeleteUserResponse.getGroupUsers().add(Pair.of(groupId, userId));
-                for (UUID user : users) {
-                    if (user.equals(userId)) {
-                        simpMessagingTemplate.convertAndSend(SYNC_DELETE_PATH_SUBSCRIBE + user, accountDeleteGroupResponse);
+                accountDeleteUserResponse.getGroupPersons().add(Pair.of(groupId, personId));
+                for (UUID person : persons) {
+                    if (person.equals(personId)) {
+                        simpMessagingTemplate.convertAndSend(SYNC_DELETE_PATH_SUBSCRIBE + person, accountDeleteGroupResponse);
                     } else {
-                        simpMessagingTemplate.convertAndSend(SYNC_DELETE_PATH_SUBSCRIBE + user, accountDeleteUserResponse);
+                        simpMessagingTemplate.convertAndSend(SYNC_DELETE_PATH_SUBSCRIBE + person, accountDeleteUserResponse);
                     }
                 }
             }
         }
     }
 
-    @MessageMapping("/group/user/delete")
-    public void deleteUserSync(DeleteResponse response) {
-        UUID userDelId = response.getDeleteId();
+    @MessageMapping("/group/person/delete")
+    public void deletePersonSync(DeleteResponse response) {
+        UUID personDelId = response.getDeleteId();
         UUID groupId = response.getGroupId();
-        UUID userId = response.getUserId();
-        if (stompService.deleteUser(userDelId, groupId, userId)) {
-            AccountDeleteResponse responseDeleteUser = new AccountDeleteResponse();
-            responseDeleteUser.getGroups().add(groupId);
-            simpMessagingTemplate.convertAndSend(SYNC_DELETE_PATH_SUBSCRIBE + userDelId, responseDeleteUser);
+        UUID personId = response.getPersonId();
+        if (stompService.deletePerson(personDelId, groupId, personId)) {
+            AccountDeleteResponse responseDeletePerson = new AccountDeleteResponse();
+            responseDeletePerson.getGroups().add(groupId);
+            simpMessagingTemplate.convertAndSend(SYNC_DELETE_PATH_SUBSCRIBE + personDelId, responseDeletePerson);
 
-            List<UUID> users = stompService.getUsersId(groupId);
+            List<UUID> persons = stompService.getPersonsId(groupId);
             AccountDeleteResponse responseGroup = new AccountDeleteResponse();
-            responseGroup.getGroupUsers().add(Pair.of(groupId, userDelId));
-            for (UUID user : users) {
-                simpMessagingTemplate.convertAndSend(SYNC_DELETE_PATH_SUBSCRIBE + user, responseGroup);
+            responseGroup.getGroupPersons().add(Pair.of(groupId, personDelId));
+            for (UUID person : persons) {
+                simpMessagingTemplate.convertAndSend(SYNC_DELETE_PATH_SUBSCRIBE + person, responseGroup);
             }
         }
     }
 
-    @MessageMapping("/group/user/admin")
-    public void setUserAdminSync(SetUserAdminResponse response) {
-        UUID userAdminId = response.getUserAdminId();
+    @MessageMapping("/group/person/admin")
+    public void setPersonAdminSync(SetPersonAdminResponse response) {
+        UUID personAdminId = response.getPersonAdminId();
         UUID groupId = response.getGroupId();
-        UUID userId = response.getUserId();
+        UUID personId = response.getPerosnId();
         Integer status = response.getStatus();
-        GroupUsers groupUsers = stompService.setUserAdmin(userAdminId, groupId, userId,status);
-        if (groupUsers != null) {
-            List<UUID> users = stompService.getUsersId(groupId);
+        GroupPersons groupPersons = stompService.setPersonAdmin(personAdminId, groupId, personId, status);
+        if (groupPersons != null) {
+            List<UUID> persons = stompService.getPersonsId(groupId);
             AccountResponse accountResponse = new AccountResponse();
-            accountResponse.getGroupUsers().add(groupUsers);
-            for (UUID user : users) {
-                simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + user, accountResponse);
+            accountResponse.getGroupPersons().add(groupPersons);
+            for (UUID person : persons) {
+                simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + person, accountResponse);
             }
         }
     }
 
-    @MessageMapping("/check")
-    public void checkSync(CheckResponse response) {
-        Check check = response.getCheck();
+    @MessageMapping("/purchase")
+    public void purchaseSync(PurchaseResponse response) {
+        Purchase purchase = response.getPurchase();
         UUID groupId = response.getGroupId();
-        List<UUID> users = stompService.getUsersId(groupId);
-        stompService.saveCheck(check);
-        Check newCheck = stompService.getCheck(check.getId());
+        List<UUID> persons = stompService.getPersonsId(groupId);
+        stompService.savePurchase(purchase);
+        Purchase newPurchase = stompService.getPurchase(purchase.getId());
         AccountResponse accountResponse = new AccountResponse();
-        accountResponse.getChecks().add(newCheck);
-        for (UUID user : users) {
-            simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + user, accountResponse);
-        }
-
-    }
-
-    @MessageMapping("/target")
-    public void targetSync(TargetResponse response) {
-        Target target = response.getTarget();
-        UUID groupId = response.getGroupId();
-        List<UUID> users = stompService.getUsersId(groupId);
-        stompService.saveTarget(target);
-        Target newTarget = stompService.getTarget(target.getId());
-        AccountResponse accountResponse = new AccountResponse();
-        accountResponse.getTargets().add(newTarget);
-        for (UUID user : users) {
-            simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + user, accountResponse);
+        accountResponse.getPurchases().add(newPurchase);
+        for (UUID person : persons) {
+            simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + person, accountResponse);
         }
     }
 
-    @MessageMapping("/check/delete")
-    public void checkDeleteSync(DeleteResponse response) {
-        UUID checkId = response.getDeleteId();
-        UUID groupId = response.getGroupId();
-        List<UUID> users = stompService.getUsersId(groupId);
-        stompService.deleteCheck(checkId);
+    @MessageMapping("/purchase/history")
+    public void purchaseToHistorySync(PurchaseResponse response) {
+        Purchase purchase = response.getPurchase();
+
+        List<UUID> baskets = stompService.deleteAllBasketByPurchase(purchase.getId());
         AccountDeleteResponse accountDeleteResponse = new AccountDeleteResponse();
-        accountDeleteResponse.getChecks().add(checkId);
-        for (UUID user : users) {
-            simpMessagingTemplate.convertAndSend(SYNC_DELETE_PATH_SUBSCRIBE + user, accountDeleteResponse);
+        accountDeleteResponse.setBaskets(baskets);
+
+        stompService.savePurchase(purchase);
+        Purchase newPurchase = stompService.getPurchase(purchase.getId());
+        AccountResponse accountResponse = new AccountResponse();
+        accountResponse.getPurchases().add(newPurchase);
+
+        UUID groupId = response.getGroupId();
+        List<UUID> persons = stompService.getPersonsId(groupId);
+        for (UUID person : persons) {
+            simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + person, accountResponse);
+            simpMessagingTemplate.convertAndSend(SYNC_DELETE_PATH_SUBSCRIBE + person, accountDeleteResponse);
+        }
+    }
+
+    @MessageMapping("/history")
+    public void historySync(HistoryResponse response) {
+        History history = response.getHistory();
+        UUID groupId = response.getGroupId();
+        List<UUID> persons = stompService.getPersonsId(groupId);
+        stompService.saveHistory(history);
+        History newHistory = stompService.getHistory(history.getIdBasket());
+        AccountResponse accountResponse = new AccountResponse();
+        accountResponse.getHistories().add(newHistory);
+        for (UUID person : persons) {
+            simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + person, accountResponse);
+        }
+    }
+
+    @MessageMapping("/basket")
+    public void basketSync(BasketResponse response) {
+        Basket basket = response.getBasket();
+        UUID groupId = response.getGroupId();
+        List<UUID> persons = stompService.getPersonsId(groupId);
+        stompService.saveBasket(basket);
+        Basket newBasket = stompService.getBasket(basket.getId());
+        AccountResponse accountResponse = new AccountResponse();
+        accountResponse.getBaskets().add(newBasket);
+        for (UUID person : persons) {
+            simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + person, accountResponse);
+        }
+
+    }
+
+//    @MessageMapping("/target")
+//    public void targetSync(TargetResponse response) {
+//        Target target = response.getTarget();
+//        UUID groupId = response.getGroupId();
+//        List<UUID> users = stompService.getPersonsId(groupId);
+//        stompService.saveTarget(target);
+//        Target newTarget = stompService.getTarget(target.getId());
+//        AccountResponse accountResponse = new AccountResponse();
+//        accountResponse.getTargets().add(newTarget);
+//        for (UUID user : users) {
+//            simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + user, accountResponse);
+//        }
+//    }
+
+    @MessageMapping("/basket/delete")
+    public void basketDeleteSync(DeleteResponse response) {
+        UUID basketId = response.getDeleteId();
+        UUID groupId = response.getGroupId();
+        List<UUID> persons = stompService.getPersonsId(groupId);
+        stompService.deleteBasket(basketId);
+        AccountDeleteResponse accountDeleteResponse = new AccountDeleteResponse();
+        accountDeleteResponse.getBaskets().add(basketId);
+        for (UUID person : persons) {
+            simpMessagingTemplate.convertAndSend(SYNC_DELETE_PATH_SUBSCRIBE + person, accountDeleteResponse);
+        }
+
+    }
+
+    @MessageMapping("/purchase/delete")
+    public void checkDeleteSync(DeleteResponse response) {
+        UUID purchaseId = response.getDeleteId();
+        UUID groupId = response.getGroupId();
+        List<UUID> persons = stompService.getPersonsId(groupId);
+        stompService.deletePurchase(purchaseId);
+        AccountDeleteResponse accountDeleteResponse = new AccountDeleteResponse();
+        accountDeleteResponse.getPurchases().add(purchaseId);
+        for (UUID person : persons) {
+            simpMessagingTemplate.convertAndSend(SYNC_DELETE_PATH_SUBSCRIBE + person, accountDeleteResponse);
         }
 
     }
@@ -167,7 +231,7 @@ public class StompController {
     public void targetDeleteSync(DeleteResponse response) {
         UUID targetId = response.getDeleteId();
         UUID groupId = response.getGroupId();
-        List<UUID> users = stompService.getUsersId(groupId);
+        List<UUID> users = stompService.getPersonsId(groupId);
         stompService.deleteTarget(targetId);
         AccountDeleteResponse accountDeleteResponse = new AccountDeleteResponse();
         accountDeleteResponse.getTargets().add(targetId);
@@ -176,8 +240,8 @@ public class StompController {
         }
     }
 
-    public void sync(UUID idUser) {
-        AccountResponse accountResponse = stompService.getAccountResponse(idUser);
-        simpMessagingTemplate.convertAndSend(SYNC_FULL_PATH_SUBSCRIBE + idUser, accountResponse);
+    public void sync(UUID personId) {
+        AccountResponse accountResponse = stompService.getAccountResponse(personId);
+        simpMessagingTemplate.convertAndSend(SYNC_FULL_PATH_SUBSCRIBE + personId, accountResponse);
     }
 }

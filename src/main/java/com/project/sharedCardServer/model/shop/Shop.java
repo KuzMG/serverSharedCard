@@ -17,7 +17,5 @@ public class Shop {
     @Column(name = "name_en")
     @JsonProperty("name_en")
     private String nameEn;
-    @NotNull
-    private boolean status;
 
 }

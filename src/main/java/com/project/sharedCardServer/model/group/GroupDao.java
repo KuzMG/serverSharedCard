@@ -31,11 +31,11 @@ public class GroupDao {
         return groupRepository.getDefaultGroup(login);
     }
 
-    public List<Group> getAll(UUID idUser, Boolean enableDefaultGroup) {
+    public List<Group> getAll(UUID personId, Boolean enableDefaultGroup) {
         if(enableDefaultGroup){
-            return groupRepository.getAllWithDefaultGroup(idUser);
+            return groupRepository.getAllWithDefaultGroup(personId);
         } else {
-            return groupRepository.getAllWithoutDefaultGroup(idUser);
+            return groupRepository.getAllWithoutDefaultGroup(personId);
         }
     }
 

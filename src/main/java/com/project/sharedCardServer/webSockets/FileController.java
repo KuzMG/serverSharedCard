@@ -1,13 +1,7 @@
 package com.project.sharedCardServer.webSockets;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.EncodeHintType;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
-import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.project.sharedCardServer.model.group.Group;
-import com.project.sharedCardServer.model.user.User;
+import com.project.sharedCardServer.model.person.Person;
 import com.project.sharedCardServer.restController.FileManager;
 import com.project.sharedCardServer.restController.dto.AccountResponse;
 import com.project.sharedCardServer.restController.dto.FileRequest;
@@ -18,17 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import static com.project.sharedCardServer.restController.Authentication.HEADER_ID_USER;
-import static com.project.sharedCardServer.restController.Authentication.HEADER_PASSWORD_USER;
+import static com.project.sharedCardServer.restController.Authentication.HEADER_ID_PERSON;
+import static com.project.sharedCardServer.restController.Authentication.HEADER_PASSWORD;
 import static com.project.sharedCardServer.webSockets.StompController.SYNC_PATH_SUBSCRIBE;
 @RestController()
 @RequestMapping("/pic")
@@ -43,9 +32,9 @@ public class FileController {
         return FileManager.getGroupPic(name);
     }
 
-    @GetMapping("/user/{id}")
-    public byte[] getUserPic(@PathVariable("id") String name) {
-        return FileManager.getUserPic(name);
+    @GetMapping("/person/{id}")
+    public byte[] getPersonPic(@PathVariable("id") String name) {
+        return FileManager.getPersonPic(name);
     }
 
     @GetMapping("/qr-code/{id}")
@@ -71,18 +60,18 @@ public class FileController {
     @PostMapping("/group")
     public ResponseEntity saveGroupPic(@RequestHeader HttpHeaders headers,
                                        @RequestBody FileRequest fileRequest) {
-        UUID idUser = UUID.fromString(Objects.requireNonNull(headers.getFirst(HEADER_ID_USER)));
-        String passwordUser = headers.getFirst(HEADER_PASSWORD_USER);
-        UUID idGroup = fileRequest.getId();
-        if (stompService.isPasswordValid(idUser, passwordUser) && stompService.isUserInGroup(idUser,idGroup)) {
+        UUID personId = UUID.fromString(Objects.requireNonNull(headers.getFirst(HEADER_ID_PERSON)));
+        String passwordPerson = headers.getFirst(HEADER_PASSWORD);
+        UUID groupId = fileRequest.getId();
+        if (stompService.isPasswordValid(personId, passwordPerson) && stompService.isPersonInGroup(personId,groupId)) {
             String pic = FileManager.saveGroupPic(fileRequest.getUri(), fileRequest.getPic());
-            Group group = stompService.updateGroupPic(idGroup,pic);
+            Group group = stompService.updateGroupPic(groupId,pic);
 
-            List<UUID> users = stompService.getUsersId(fileRequest.getId());
+            List<UUID> persons = stompService.getPersonsId(fileRequest.getId());
             AccountResponse accountResponse = new AccountResponse();
             accountResponse.getGroups().add(group);
 
-            for (UUID id : users) {
+            for (UUID id : persons) {
                 simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + id, accountResponse);
             }
             return ResponseEntity.ok().build();
@@ -91,21 +80,21 @@ public class FileController {
         }
     }
 
-    @PostMapping("/user")
-    public ResponseEntity saveUserPic(@RequestHeader HttpHeaders headers,
-                                      @RequestBody FileRequest fileRequest) {
-        UUID userId = UUID.fromString(Objects.requireNonNull(headers.getFirst(HEADER_ID_USER)));
-        String userPassword = headers.getFirst(HEADER_PASSWORD_USER);
-        if (!stompService.isPasswordValid(userId, userPassword)) {
+    @PostMapping("/person")
+    public ResponseEntity savePersonPic(@RequestHeader HttpHeaders headers,
+                                        @RequestBody FileRequest fileRequest) {
+        UUID personId = UUID.fromString(Objects.requireNonNull(headers.getFirst(HEADER_ID_PERSON)));
+        String personPassword = headers.getFirst(HEADER_PASSWORD);
+        if (!stompService.isPasswordValid(personId, personPassword)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         } else {
-            String pic = FileManager.saveUserPic(fileRequest.getUri(), fileRequest.getPic());
-            User user = stompService.updateUserPic(userId,pic);
+            String pic = FileManager.savePersonPic(fileRequest.getUri(), fileRequest.getPic());
+            Person person = stompService.updatePersonPic(personId,pic);
             AccountResponse accountResponse = new AccountResponse();
-            accountResponse.getUsers().add(user);
-            List<User> users = stompService.getUsers(userId);
-            for (User value : users) {
-                simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + value.getId(), accountResponse);
+            accountResponse.getPersons().add(person);
+            List<Person> persons = stompService.getPersons(personId);
+            for (Person p : persons) {
+                simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + p.getId(), accountResponse);
             }
             return ResponseEntity.ok().build();
         }

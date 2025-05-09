@@ -2,10 +2,10 @@ package com.project.sharedCardServer.model.target;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.project.sharedCardServer.model.category.Category;
+import com.project.sharedCardServer.model.category_product.CategoryProduct;
 import com.project.sharedCardServer.model.currency.Currency;
+import com.project.sharedCardServer.model.person.Person;
 import com.project.sharedCardServer.model.shop.Shop;
-import com.project.sharedCardServer.model.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -95,11 +95,11 @@ public class Target {
     @JsonIgnore
     @JoinColumn(name = "id_buyer", referencedColumnName = "id")
     @OneToOne(fetch = FetchType.LAZY)
-    private User buyer;
+    private Person buyer;
     @JsonIgnore
     @JoinColumn(name = "id_creator", referencedColumnName = "id")
     @OneToOne(fetch = FetchType.LAZY)
-    private User creator;
+    private Person creator;
     @JsonIgnore
     @JoinColumn(name = "id_currency_last", referencedColumnName = "id")
     @OneToOne(fetch = FetchType.LAZY)
@@ -124,7 +124,7 @@ public class Target {
     @JsonIgnore
     @JoinColumn(name = "id_category", referencedColumnName = "id")
     @OneToOne(fetch = FetchType.LAZY)
-    private Category category;
+    private CategoryProduct category;
     @NotNull
     @JsonIgnore
     private boolean status;

@@ -11,7 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class CreateGroupResponse {
     private String name;
-    @JsonProperty("user_id")
-    private UUID userId;
+    @JsonProperty("person_id")
+    private UUID personId;
     private byte[] pic;
 }

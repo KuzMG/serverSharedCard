@@ -8,8 +8,8 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 public class AuthResponse {
-    @JsonProperty("id_user")
-    private UUID idUser;
-    @JsonProperty("id_group")
-    private UUID idGroup;
+    @JsonProperty("person_id")
+    private UUID personId;
+    @JsonProperty("group_id")
+    private UUID groupId;
 }

@@ -6,7 +6,6 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
 
@@ -23,7 +22,7 @@ public class FileManager {
     private static final String GROUP_PATH = "/group/";
     private static final String PRODUCT_PATH = "/product/";
     private static final String RECIPE_PATH = "/recipe/";
-    private static final String USER_PATH = "/user/";
+    private static final String PERSON_PATH = "/person/";
     private static final String QR_CODE_PATH = "/qr-code/";
     private static final String CATEGORY_PATH = "/category/";
 
@@ -55,20 +54,20 @@ public class FileManager {
         return saveFile(uri, pic);
     }
 
-    public static byte[] getUserPic(String name) {
-        String path = FOLDER + USER_PATH + name;
+    public static byte[] getPersonPic(String name) {
+        String path = FOLDER + PERSON_PATH + name;
         File file = new File(path);
         return getFile(file);
     }
 
-    public static String saveUserPic(String uri, byte[] pic) {
+    public static String savePersonPic(String uri, byte[] pic) {
         return saveFile(uri, pic);
     }
 
-    public static String saveDefaultUserPic(UUID userId) {
-        String path = FOLDER + USER_PATH + userId + "_1";
+    public static String saveDefaultPersonPic(UUID personId) {
+        String path = FOLDER + PERSON_PATH + personId + "_1";
         File file = new File(path);
-        File defPic = new File(FOLDER + USER_PATH + "default-user");
+        File defPic = new File(FOLDER + PERSON_PATH + "default-person");
         try {
             FileCopyUtils.copy(defPic, file);
         } catch (IOException e) {

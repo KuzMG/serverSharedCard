@@ -1,7 +1,8 @@
 package com.project.sharedCardServer.model.product;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.project.sharedCardServer.model.category.Category;
+import com.project.sharedCardServer.model.category_product.CategoryProduct;
+import com.project.sharedCardServer.model.metric.Metric;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -19,18 +20,25 @@ public class Product {
     @JsonProperty("name_en")
     private String nameEn;
     @NotNull
-    @Column(name = "id_category", insertable = false, updatable = false)
-    @JsonProperty("id_category")
+    @Column(name = "id_category_product", insertable = false, updatable = false)
+    @JsonProperty("id_category_product")
     private Integer idCategory;
-    @JoinColumn(name = "id_category",referencedColumnName = "id")
-    @OneToOne(targetEntity = Category.class, fetch = FetchType.LAZY)
-    private Category category;
-    private String pic;
+    @JoinColumn(name = "id_category_product", referencedColumnName = "id")
+    @OneToOne(targetEntity = CategoryProduct.class, fetch = FetchType.LAZY)
+    private CategoryProduct category;
+    @NotNull
+    @Column(name = "quantity_multiplier", insertable = false, updatable = false)
+    @JsonProperty("quantity_multiplier")
+    private Integer quantityMultiplier;
+    @NotNull
+    @Column(name = "id_metric", insertable = false, updatable = false)
+    @JsonProperty("id_metric")
+    private Integer idMetric;
+    @JoinColumn(name = "id_metric", referencedColumnName = "id")
+    @OneToOne(targetEntity = Metric.class, fetch = FetchType.LAZY)
+    private Metric metric;
     private Double fat;
     private Double protein;
     private Double carb;
     private Integer calories;
-    private Integer weight;
-    @NotNull
-    private Boolean allergy;
 }

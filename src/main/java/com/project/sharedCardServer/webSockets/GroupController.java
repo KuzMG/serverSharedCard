@@ -1,13 +1,12 @@
 package com.project.sharedCardServer.webSockets;
 
 import com.google.zxing.WriterException;
-import com.project.sharedCardServer.model.check.Check;
+import com.project.sharedCardServer.model.purchase.Purchase;
 import com.project.sharedCardServer.model.group.Group;
 import com.project.sharedCardServer.model.group.GroupToken;
-import com.project.sharedCardServer.model.group_users.GroupUsers;
+import com.project.sharedCardServer.model.group_persons.GroupPersons;
 import com.project.sharedCardServer.model.target.Target;
-import com.project.sharedCardServer.model.user.User;
-import com.project.sharedCardServer.restController.FileManager;
+import com.project.sharedCardServer.model.person.Person;
 import com.project.sharedCardServer.restController.dto.AccountResponse;
 import com.project.sharedCardServer.restController.dto.CreateGroupResponse;
 import com.project.sharedCardServer.restController.dto.JoinInGroupResponse;
@@ -37,25 +36,23 @@ public class GroupController {
         UUID userId = response.getUserId();
         UUID groupId = stompService.checkToken(token);
         if (groupId != null) {
-            if (!stompService.isUserInGroup(userId, groupId)) {
-                GroupUsers newGroupUsers = stompService.createGroupUsers(groupId, userId, GroupUsers.USER);
-                List<Check> checks = stompService.getChecks(groupId);
-                List<Target> targets = stompService.getTargets(groupId);
-                List<User> users = stompService.getAllUsers(groupId);
-                List<GroupUsers> groupUsers = stompService.getGroupUsers(groupId);
+            if (!stompService.isPersonInGroup(userId, groupId)) {
+                GroupPersons newGroupPersons = stompService.createGroupPersons(groupId, userId, GroupPersons.USER);
+                List<Purchase> purchases = stompService.getPurchases(groupId);
+                List<Person> people = stompService.getAllPersons(groupId);
+                List<GroupPersons> groupUsers = stompService.getGroupPersons(groupId);
                 Group group = stompService.getGroup(groupId);
                 AccountResponse accountResponseNewUser = new AccountResponse();
-                accountResponseNewUser.getChecks().addAll(checks);
-                accountResponseNewUser.getTargets().addAll(targets);
-                accountResponseNewUser.getUsers().addAll(users);
-                accountResponseNewUser.getGroupUsers().addAll(groupUsers);
+                accountResponseNewUser.getPurchases().addAll(purchases);
+                accountResponseNewUser.getPersons().addAll(people);
+                accountResponseNewUser.getGroupPersons().addAll(groupUsers);
                 accountResponseNewUser.getGroups().add(group);
 
                 AccountResponse accountResponse = new AccountResponse();
-                User user = stompService.getUser(userId);
-                accountResponse.getUsers().add(user);
-                accountResponse.getGroupUsers().add(newGroupUsers);
-                for (User u : users) {
+                Person person = stompService.getUser(userId);
+                accountResponse.getPersons().add(person);
+                accountResponse.getGroupPersons().add(newGroupPersons);
+                for (Person u : people) {
                     if (u.getId().equals(userId)) {
                         simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + u.getId(), accountResponseNewUser);
                     } else {
@@ -72,12 +69,12 @@ public class GroupController {
     @GetMapping("/server/group/token")
     public ResponseEntity<TokenResponse> getToken(
             @RequestParam("group-id") UUID groupId,
-            @RequestParam("user-id") UUID userId,
+            @RequestParam("person-id") UUID personId,
             @RequestParam("password") String password
     ) {
         try {
-            if (stompService.isPasswordValid(userId, password) &&
-                    stompService.isUserInGroup(userId, groupId)) {
+            if (stompService.isPasswordValid(personId, password) &&
+                    stompService.isPersonInGroup(personId, groupId)) {
                 GroupToken token = stompService.getToken(groupId);
                 TokenResponse tokenResponse = new TokenResponse(token.getToken(),token.getPic());
                 return ResponseEntity.ok(tokenResponse);
@@ -91,18 +88,18 @@ public class GroupController {
     }
 
     @PostMapping("/server/group/create")
-    public ResponseEntity<String> createGroupSync(@RequestParam("user-id") UUID userCreatorId,
+    public ResponseEntity<String> createGroupSync(@RequestParam("person-id") UUID personCreatorId,
                                                   @RequestParam("password") String password,
                                                   @RequestBody CreateGroupResponse response) {
-        if (stompService.isPasswordValid(userCreatorId, password)) {
-            UUID userId = response.getUserId();
+        if (stompService.isPasswordValid(personCreatorId, password)) {
+            UUID userId = response.getPersonId();
             String name = response.getName();
             byte[] pic = response.getPic();
             Group group = stompService.createGroup(name, pic);
-            GroupUsers groupUsers = stompService.createGroupUsers(group.getId(), userId, GroupUsers.CREATOR);
+            GroupPersons groupPersons = stompService.createGroupPersons(group.getId(), userId, GroupPersons.CREATOR);
             AccountResponse accountResponse = new AccountResponse();
             accountResponse.getGroups().add(group);
-            accountResponse.getGroupUsers().add(groupUsers);
+            accountResponse.getGroupPersons().add(groupPersons);
             simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + userId, accountResponse);
             return ResponseEntity.ok().build();
         } else {

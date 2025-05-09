@@ -13,9 +13,10 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AccountDeleteResponse {
-    private List<UUID> users = new ArrayList<>();
+    private List<UUID> persons = new ArrayList<>();
     private List<UUID> groups = new ArrayList<>();
-    private List<Pair<UUID,UUID>> groupUsers = new ArrayList<>();
-    private List<UUID> checks = new ArrayList<>();
+    private List<Pair<UUID,UUID>> groupPersons = new ArrayList<>();
+    private List<UUID> purchases = new ArrayList<>();
+    private List<UUID> baskets = new ArrayList<>();
     private List<UUID> targets = new ArrayList<>();
 }

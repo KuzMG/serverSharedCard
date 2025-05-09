@@ -18,11 +18,15 @@ public class GroupToken {
     @JoinColumn(name = "id", referencedColumnName = "id")
     @OneToOne(fetch = FetchType.LAZY)
     private Group group;
+    @NotNull
     @Column(unique = true)
     private String token;
+    @NotNull
     private String pic;
+    @NotNull
     private Date date;
-    private int count;
+    @NotNull
+    private Integer count;
 
     public GroupToken(UUID id) {
         this.id = id;

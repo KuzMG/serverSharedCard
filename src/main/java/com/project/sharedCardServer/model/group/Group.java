@@ -1,23 +1,18 @@
 package com.project.sharedCardServer.model.group;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.project.sharedCardServer.model.group_users.GroupUsers;
 import jakarta.persistence.*;
-import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.UUID;
 
 @Data
-@Entity(name = "group_")
+@Entity(name = "\"group\"")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Group {

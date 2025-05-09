@@ -10,7 +10,7 @@ import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 import java.util.UUID;
 
 @Component
-public class StompConnectedEvent implements ApplicationListener<SessionSubscribeEvent> {
+public class StompConnectedEvent implements ApplicationListener<SessionConnectedEvent> {
 
 
     @Autowired
@@ -18,12 +18,14 @@ public class StompConnectedEvent implements ApplicationListener<SessionSubscribe
 
 
 
+
+
     @Override
-    public void onApplicationEvent(SessionSubscribeEvent event) {
+    public void onApplicationEvent(SessionConnectedEvent event) {
         System.out.println("Client connected.");
-        UUID idUser = UUID.fromString(event.getUser().getName());
-    
-        controller.sync(idUser);
+        UUID personId = UUID.fromString(event.getUser().getName());
+
+        controller.sync(personId);
     }
 
     @Override

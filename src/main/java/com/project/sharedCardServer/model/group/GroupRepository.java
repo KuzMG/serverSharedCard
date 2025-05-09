@@ -12,30 +12,30 @@ import java.util.UUID;
 
 @Repository
 public interface GroupRepository extends CrudRepository<Group, UUID> {
-    @Query(value = "select g.id from group_ as g join  group_users as gu on gu.id_group=g.id " +
-            "join user_account as u on gu.id_user = u.id where u.email = ?1 and g.name = ''", nativeQuery = true)
+    @Query(value = "select g.id from \"group\" as g join  group_persons as gu on gu.id_group=g.id " +
+            "join account as u on gu.id_person = u.id where u.email = ?1 and g.name = ''", nativeQuery = true)
     UUID getDefaultGroup(String login);
 
-    @Query(value = "select * from group_ as g where g.id in " +
-            "(select gu.id_group from group_users as gu where gu.id_user =?1)", nativeQuery = true)
-    List<Group> getAllWithDefaultGroup(UUID idUser);
+    @Query(value = "select * from \"group\" as g where g.id in " +
+            "(select gu.id_group from group_persons as gu where gu.id_person =?1)", nativeQuery = true)
+    List<Group> getAllWithDefaultGroup(UUID personId);
 
-    @Query(value = "select * from group_ as g where g.id in " +
-            "(select gu.id_group from group_users as gu where gu.id_user =?1) and g.name != ''", nativeQuery = true)
-    List<Group> getAllWithoutDefaultGroup(UUID idUser);
+    @Query(value = "select * from \"group\" as g where g.id in " +
+            "(select gu.id_group from group_persons as gu where gu.id_person =?1) and g.name != ''", nativeQuery = true)
+    List<Group> getAllWithoutDefaultGroup(UUID personId);
 
 
 //    @Modifying
     @Transactional
-    @Query(value = "UPDATE group_ SET pic = ?2 WHERE id = ?1 RETURNING *", nativeQuery = true)
+    @Query(value = "UPDATE \"group\" SET pic = ?2 WHERE id = ?1 RETURNING *", nativeQuery = true)
     Group updatePic(UUID groupId,String pic);
 
 //    @Modifying
     @Transactional
-    @Query(value = "update group_ set name = ?2 where id = ?1  RETURNING *", nativeQuery = true)
+    @Query(value = "update \"group\" set name = ?2 where id = ?1  RETURNING *", nativeQuery = true)
     Group updateName(UUID groupId,String name);
 //    @Modifying
     @Transactional
-    @Query(value = "update group_ set name = ?2, pic = ?3 where id = ?1  RETURNING *", nativeQuery = true)
+    @Query(value = "update \"group\" set name = ?2, pic = ?3 where id = ?1  RETURNING *", nativeQuery = true)
     Group update(UUID id, String name, String pic);
 }
