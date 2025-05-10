@@ -46,8 +46,6 @@ public class Authentication {
     @Autowired
     private CurrencyDao currencyDao;
     @Autowired
-    private FileManager fileManager;
-    @Autowired
     private GroupDao groupDao;
     @Autowired
     private GroupPersonsDao groupPersonsDao;
