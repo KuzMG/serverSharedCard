@@ -4,7 +4,7 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-FROM openjdk:17-jre-slim
+FROM openjdk
 WORKDIR /app
 COPY --from=builder /app/target/sharedCardServer-0.0.1-SNAPSHOT.jar .
 EXPOSE 8081
