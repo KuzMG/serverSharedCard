@@ -13,6 +13,4 @@ public class RegistrationBody {
    private String name;
    private Long date;
    private Boolean gender;
-   private Double weight;
-   private Integer height;
 }

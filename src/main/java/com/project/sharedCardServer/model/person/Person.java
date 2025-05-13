@@ -20,10 +20,7 @@ public class Person {
     private String name;
     @NotNull
     private Boolean gender;
-    @NotNull
-    private Double weight;
-    @NotNull
-    private Integer height;
+
     @NotNull
     @DateTimeFormat
     @JsonIgnore
@@ -43,11 +40,9 @@ public class Person {
     public Person() {
     }
 
-    public Person(String name, Boolean gender, Double weight, Integer height, Date birthday) {
+    public Person(String name, Boolean gender, Date birthday) {
         this.name = name;
         this.gender = gender;
-        this.weight = weight;
-        this.height = height;
         this.birthday = birthday;
     }
 

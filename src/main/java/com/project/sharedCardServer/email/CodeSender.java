@@ -47,7 +47,7 @@ public class CodeSender {
             message.setSentDate(new Date());
             Transport.send(message);
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+
         }
     }
 

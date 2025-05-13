@@ -30,8 +30,8 @@ public class PersonDao {
         return account != null;
     }
 
-    public UUID createPerson(String email, String password, String name, Date birthday, Boolean gender, Integer height, Double weight) {
-        Person person = new Person(name, gender, weight, height, birthday);
+    public UUID createPerson(String email, String password, String name, Date birthday, Boolean gender) {
+        Person person = new Person(name, gender, birthday);
         UUID id = personRepository.save(person).getId();
         personAccountRepository.save(id, email, password);
         return id;

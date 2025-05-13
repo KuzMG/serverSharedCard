@@ -87,10 +87,8 @@ public class Authentication {
         String name = body.getName();
         Date date = new Date(body.getDate());
         Boolean gender = body.getGender();
-        Double weight = body.getWeight();
-        Integer height = body.getHeight();
         if (!personDao.isExist(email)) {
-            UUID personId = personDao.createPerson(email, password, name, date, gender, height, weight);
+            UUID personId = personDao.createPerson(email, password, name, date, gender);
             String personPic = FileManager.saveDefaultPersonPic(personId);
             personDao.updatePic(personId, personPic);
 
