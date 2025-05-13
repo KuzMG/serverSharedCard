@@ -32,7 +32,7 @@ public class GroupDao {
     }
 
     public List<Group> getAll(UUID personId, Boolean enableDefaultGroup) {
-        if(enableDefaultGroup){
+        if (enableDefaultGroup) {
             return groupRepository.getAllWithDefaultGroup(personId);
         } else {
             return groupRepository.getAllWithoutDefaultGroup(personId);
@@ -53,6 +53,7 @@ public class GroupDao {
         group.setName(name);
         return groupRepository.save(group);
     }
+
     public Group updatePic(UUID id, String pic) {
         Group group = groupRepository.findById(id).get();
         group.setPic(pic);
@@ -88,27 +89,32 @@ public class GroupDao {
         return groupRepository.findById(groupId).get();
     }
 
-    public GroupToken getToken(UUID groupId) throws IOException, WriterException {
-        GroupToken groupToken = groupTokenRepository.get(groupId);
-        if(groupToken == null){
-            String token =generateToken();
-            String pic = FileManager.createQRImage(groupId, token);
-            groupTokenRepository.save(groupId, token,pic);
-            return groupTokenRepository.get(groupId);
-        }
+    public GroupToken getToken(UUID groupId) {
+        try {
+            GroupToken groupToken = groupTokenRepository.get(groupId);
+            if (groupToken == null) {
+                String token = generateToken();
+                String pic = FileManager.createQRImage(groupId, token);
+                groupTokenRepository.save(groupId, token, pic);
+                return groupTokenRepository.get(groupId);
+            }
 
-        Long now = new Date().getTime();
-        Long tokenTime = groupToken.getDate().getTime();
-        if(now-tokenTime >= 5 * 60 * 1000){
-            String token =generateToken();
-            String pic = FileManager.createQRImage(groupId, token);
-            groupTokenRepository.update(groupId, token,pic);
-            return groupTokenRepository.get(groupId);
-        } else {
-            return groupToken;
+            Long now = new Date().getTime();
+            Long tokenTime = groupToken.getDate().getTime();
+            if (now - tokenTime >= 5 * 60 * 1000) {
+                String token = generateToken();
+                String pic = FileManager.createQRImage(groupId, token);
+                groupTokenRepository.update(groupId, token, pic);
+                return groupTokenRepository.get(groupId);
+            } else {
+                return groupToken;
+            }
+        } catch (WriterException | IOException ex) {
+            throw new RuntimeException(ex);
         }
     }
-    private String generateToken(){
+
+    private String generateToken() {
         return UUID.randomUUID().toString();
-   }
+    }
 }
