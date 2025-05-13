@@ -45,11 +45,7 @@ public class FileManager {
         File file = new File(path);
         return getFile(file);
     }
-    public static byte[] getProduct(String name) {
-        String path = FOLDER + PRODUCT_PATH + name;
-        File file = new File(path);
-        return getFile(file);
-    }
+
     public static String saveGroupPic(String uri, byte[] pic) {
         return saveFile(uri, pic);
     }

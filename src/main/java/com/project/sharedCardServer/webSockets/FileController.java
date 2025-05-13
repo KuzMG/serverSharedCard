@@ -47,10 +47,8 @@ public class FileController {
         return FileManager.getCategory(name);
     }
 
-    @GetMapping("/product/{id}")
-    public byte[] getProductPic(@PathVariable("id") String name) {
-        return FileManager.getProduct(name);
-    }
+
+
 
     @GetMapping("/recipe/{id}")
     public byte[] getRecipePic(@PathVariable("id") String name) {
