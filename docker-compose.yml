@@ -28,6 +28,26 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: rabbitmq-stomp
+    ports:
+      - "5672:5672"       # AMQP (для Spring)
+      - "61613:61613"     # STOMP (Spring STOMP backend)
+      - "15672:15672"     # Web UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: >
+      bash -c "rabbitmq-plugins enable --offline rabbitmq_stomp rabbitmq_management && rabbitmq-server"
+volumes:
+  rabbitmq_data:
 #  grafana:
 #    image: grafana/grafana
 #    ports:

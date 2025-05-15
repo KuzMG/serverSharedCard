@@ -52,9 +52,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/app")
-                .setTaskScheduler(heartBeatScheduler())
-                .setHeartbeatValue(new long[]{10000, 10000});
+        registry
+                .enableStompBrokerRelay("/app")
+                .setRelayHost("rabbitmq")               // Имя контейнера RabbitMQ в docker-compose
+                .setRelayPort(61613)                    // STOMP порт RabbitMQ
+                .setClientLogin("guest")
+                .setClientPasscode("guest")
+                .setSystemLogin("guest")
+                .setSystemPasscode("guest")
+                .setTaskScheduler(heartBeatScheduler()); // 10s
 
         registry.setApplicationDestinationPrefixes("/server");
     }
@@ -62,7 +68,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Bean
     public TaskScheduler heartBeatScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(1);
         scheduler.setThreadNamePrefix("wss-heartbeat-");
         scheduler.initialize();
         return scheduler;
