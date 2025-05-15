@@ -54,13 +54,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry
                 .enableStompBrokerRelay("/app")
-                .setRelayHost("rabbitmq")               // Имя контейнера RabbitMQ в docker-compose
-                .setRelayPort(61613)                    // STOMP порт RabbitMQ
+                .setRelayHost("rabbitmq")
+                .setRelayPort(61613)
                 .setClientLogin("guest")
                 .setClientPasscode("guest")
                 .setSystemLogin("guest")
                 .setSystemPasscode("guest")
-                .setTaskScheduler(heartBeatScheduler()); // 10s
+                .setTaskScheduler(heartBeatScheduler());
 
         registry.setApplicationDestinationPrefixes("/server");
     }
