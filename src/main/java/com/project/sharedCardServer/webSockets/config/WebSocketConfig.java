@@ -44,7 +44,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .corePoolSize(10)
                 .maxPoolSize(500);
     }
-    }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
