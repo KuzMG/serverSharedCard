@@ -23,7 +23,21 @@ import java.util.UUID;
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.taskExecutor()
+                .corePoolSize(16)
+                .maxPoolSize(32)
+                .queueCapacity(1000);
+    }
 
+    @Override
+    public void configureClientOutboundChannel(ChannelRegistration registration) {
+        registration.taskExecutor()
+                .corePoolSize(16)
+                .maxPoolSize(32)
+                .queueCapacity(1000);
+    }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -32,15 +46,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/app") .setHeartbeatValue(new long[]{10000, 10000})
-                .setTaskScheduler(heartBeatScheduler());
+        registry.enableSimpleBroker("/app")
+                .setTaskScheduler(heartBeatScheduler())
+                .setHeartbeatValue(new long[]{30000, 30000});
+
         registry.setApplicationDestinationPrefixes("/server");
     }
 
     @Bean
     public TaskScheduler heartBeatScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-        scheduler.setPoolSize(16);
+        scheduler.setPoolSize(1);
         scheduler.setThreadNamePrefix("wss-heartbeat-");
         scheduler.initialize();
         return scheduler;
