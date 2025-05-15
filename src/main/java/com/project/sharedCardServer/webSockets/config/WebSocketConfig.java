@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
 import java.util.UUID;
 
@@ -24,19 +25,25 @@ import java.util.UUID;
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
+        registration.setMessageSizeLimit(8192); // bytes
+        registration.setSendBufferSizeLimit(102400); // bytes
+        registration.setSendTimeLimit(20_000); // ms
+    }
+    @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.taskExecutor()
-                .corePoolSize(16)
-                .maxPoolSize(32)
-                .queueCapacity(1000);
+                .corePoolSize(10)
+                .maxPoolSize(500)
+                .keepAliveSeconds(60);
     }
 
     @Override
     public void configureClientOutboundChannel(ChannelRegistration registration) {
         registration.taskExecutor()
-                .corePoolSize(16)
-                .maxPoolSize(32)
-                .queueCapacity(1000);
+                .corePoolSize(10)
+                .maxPoolSize(500);
+    }
     }
 
     @Override
@@ -48,7 +55,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/app")
                 .setTaskScheduler(heartBeatScheduler())
-                .setHeartbeatValue(new long[]{30000, 30000});
+                .setHeartbeatValue(new long[]{10000, 10000});
 
         registry.setApplicationDestinationPrefixes("/server");
     }
