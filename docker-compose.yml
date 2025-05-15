@@ -47,6 +47,7 @@ services:
     command: >
       bash -c "rabbitmq-plugins enable --offline rabbitmq_stomp rabbitmq_management && rabbitmq-server"
 volumes:
+
   rabbitmq_data:
 #  grafana:
 #    image: grafana/grafana
