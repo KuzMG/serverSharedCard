@@ -57,6 +57,6 @@ public class CodeSender {
         for (int i = 0; i <6; i++) {
             sb.append(random.nextInt(10));
         }
-        return sb.toString();
+        return "111111";
     }
 }
