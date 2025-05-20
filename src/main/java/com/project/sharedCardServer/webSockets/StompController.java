@@ -20,8 +20,8 @@ import java.util.UUID;
 @Controller
 public class StompController {
     private static final String SYNC_FULL_PATH_SUBSCRIBE = "topic/synchronization/full/";
-    public static final String SYNC_PATH_SUBSCRIBE = "/topic/synchronization/";
-    private static final String SYNC_DELETE_PATH_SUBSCRIBE = "/topic/synchronization/delete/";
+    public static final String SYNC_PATH_SUBSCRIBE = "topic/synchronization/";
+    private static final String SYNC_DELETE_PATH_SUBSCRIBE = "topic/synchronization/delete/";
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
     @Autowired
@@ -243,6 +243,6 @@ public class StompController {
     public void sync(UUID personId) {
         AccountResponse accountResponse = stompService.getAccountResponse(personId);
         System.out.println("SEND SYNC");
-        simpMessagingTemplate.convertAndSend(SYNC_FULL_PATH_SUBSCRIBE + personId, accountResponse);
+//        simpMessagingTemplate.convertAndSend(SYNC_FULL_PATH_SUBSCRIBE + personId, accountResponse);
     }
 }
