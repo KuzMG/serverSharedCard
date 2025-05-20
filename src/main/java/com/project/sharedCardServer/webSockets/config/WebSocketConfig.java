@@ -53,7 +53,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry
-                .enableStompBrokerRelay("/app")
+                .enableStompBrokerRelay("/topic")
                 .setRelayHost("rabbitmq")
                 .setRelayPort(61613)
                 .setClientLogin("guest")
