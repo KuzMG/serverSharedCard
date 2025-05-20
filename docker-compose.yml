@@ -24,6 +24,9 @@ services:
       POSTGRES_PASSWORD: "qwe321loi"
     ports:
       - "5432:5432"
+    depends_on:
+      rabbitmq:
+        condition: service_started
   prometheus:
     image: prom/prometheus
     ports:
