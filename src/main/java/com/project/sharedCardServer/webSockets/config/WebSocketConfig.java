@@ -61,7 +61,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setSystemLogin("guest")
                 .setSystemPasscode("guest")
                 .setTaskScheduler(heartBeatScheduler());
-
+        registry.enableSimpleBroker("/exchange");
         registry.setApplicationDestinationPrefixes("/server");
     }
 
