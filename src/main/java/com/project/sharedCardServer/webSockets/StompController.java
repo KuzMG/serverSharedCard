@@ -20,8 +20,8 @@ import java.util.UUID;
 @Controller
 public class StompController {
     private static final String SYNC_FULL_PATH_SUBSCRIBE = "/topic/full.";
-    public static final String SYNC_PATH_SUBSCRIBE = "/exchange/amq.topic/synchronization/";
-    private static final String SYNC_DELETE_PATH_SUBSCRIBE = "/exchange/amq.topic/synchronization/delete/";
+    public static final String SYNC_PATH_SUBSCRIBE = "/topic/add.";
+    private static final String SYNC_DELETE_PATH_SUBSCRIBE = "/topic/delete.";
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
     @Autowired
