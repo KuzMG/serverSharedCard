@@ -243,13 +243,7 @@ public class StompController {
     public void sync(UUID personId) {
         AccountResponse accountResponse = stompService.getAccountResponse(personId);
         System.out.println("SEND SYNC " + SYNC_FULL_PATH_SUBSCRIBE + personId);
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         simpMessagingTemplate.convertAndSend(SYNC_FULL_PATH_SUBSCRIBE + personId, accountResponse);
-        simpMessagingTemplate.convertAndSend(SYNC_PATH_SUBSCRIBE + personId, accountResponse);
 
         System.out.println("Отправил SEND SYNC " + SYNC_FULL_PATH_SUBSCRIBE + personId);
 
