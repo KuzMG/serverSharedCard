@@ -47,7 +47,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/stomp").withSockJS();;
+        registry.addEndpoint("/stomp").withSockJS();
     }
 
     @Override
@@ -61,7 +61,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setSystemLogin("guest")
                 .setSystemPasscode("guest")
                 .setTaskScheduler(heartBeatScheduler());
-        registry.enableSimpleBroker("/topic", "/queue");
         registry.setApplicationDestinationPrefixes("/server");
     }
 
