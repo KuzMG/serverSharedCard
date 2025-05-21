@@ -47,13 +47,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/stomp");
+        registry.addEndpoint("/stomp").withSockJS();;
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry
-                .enableStompBrokerRelay("/exchange")
+                .enableStompBrokerRelay("/topic", "/queue")
                 .setRelayHost("rabbitmq")
                 .setRelayPort(61613)
                 .setClientLogin("guest")
@@ -61,7 +61,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setSystemLogin("guest")
                 .setSystemPasscode("guest")
                 .setTaskScheduler(heartBeatScheduler());
-        registry.enableSimpleBroker("/exchange");
+        registry.enableSimpleBroker("/topic", "/queue");
         registry.setApplicationDestinationPrefixes("/server");
     }
 
