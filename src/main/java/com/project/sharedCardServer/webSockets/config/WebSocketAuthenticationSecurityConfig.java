@@ -49,7 +49,8 @@ public class WebSocketAuthenticationSecurityConfig implements WebSocketMessageBr
                     String password = nativeHeaders.get(HEADER_PASSWORD_PERSON).get(0);
                     UsernamePasswordAuthenticationToken user = null;
                         user = stompService.getAuthenticatedOrFail(personId, password);
-                        accessor.setUser(user);
+                    System.out.println("check " + user);
+                    accessor.setUser(user);
 
                 }
                 return message;
